@@ -1,0 +1,53 @@
+html {
+    font-family: 'Open Sans', Tahoma, sans-serif;
+    font-size: 10px;
+}
+
+body {
+    margin: 0;
+    font-size: 1.4rem;
+}
+
+.std-block {
+    padding: 1.4rem;
+}
+
+.btn {
+    display: inline-block;
+    padding: 1rem;
+    text-align: center;
+    border: 1px solid transparent;
+}
+.btn:hover {
+    cursor: pointer;
+}
+.btn:focus {
+    outline: none;
+}
+
+.btn-primary {
+    background: #06f;
+    color: #fff;
+}
+.btn-primary:hover {
+    background: #06c;
+}
+
+.form-item {
+    margin-bottom: 1rem;
+}
+
+.std-form-label {
+    display: inline-block;
+    padding: 1rem 0;
+}
+
+.std-form-field {
+    display: block;
+    padding: 1rem 0.6rem;
+}
+
+.error-block {
+    padding-top: 1rem;
+    color: #f34656;
+}
