@@ -15,12 +15,15 @@
             <div class="std-block app-logic-step step-1">
                 <form id="app-form-step-1" class="app-form">
                     <div class="form-item">
-                        <label for="amount-of-variants" class="std-form-label">Please, input the amount of variants</label>
+                        <label for="amount-of-variants" class="std-form-label">Please, input the amount of variants (less or equal to 100)</label>
                         <input type="text" id="amount-of-variants" class="std-form-field amount-of-variants" autofocus>
                     </div>
-                    <button type="button" class="btn btn-primary btn-next" data-form-id="app-form-step-1">Next step</button>
+                    <button type="button" class="btn btn-primary btn-next btn-step-1">Next step</button>
+                    <div class="error-block"></div>
                 </form>
-                <div class="error-block"></div>
+            </div>
+            <div class="std-block app-logic-step step-2">
+                <form id="app-form-step-2" class="app-form"></form>
             </div>
         </div>
 
