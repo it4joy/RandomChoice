@@ -21,11 +21,11 @@ function hideBlock(block) {
     }, 4000);
 }
 
-function hideErrorBlock(currentForm, block) {
+function hideErrorBlock() {
     setTimeout(function() {
-        block.text('');
-        block.fadeOut();
-    }, 4000);
+        $('.invalid').removeClass('invalid');
+        $('.app-logic-step').find('.error-block').fadeOut().text('');
+    }, 3000);
 }
 
 
@@ -44,52 +44,86 @@ stepTwoWrapper.hide();
 
 // step-1
 
-$('.btn-step-1').on('click', function() {
-    const currentForm = '#' + $(this).parent().attr('id');
-    const currentErrorBlock = $(currentForm).find('.error-block');
-    const amountOfVariantsField = $(currentForm).find('.amount-of-variants');
-    const amountOfVariantsVal = amountOfVariantsField.val();
+let textAreasCounter = 1;
 
-    currentErrorBlock.show();
+const stepOneErrBlock = $('.step-1 .error-block');
 
-    if ( amountOfVariantsVal.length === 0 ) {
-        currentErrorBlock.text(errors.emptyField);
-        amountOfVariantsField.after(currentErrorBlock);
-        hideErrorBlock(currentForm, currentErrorBlock);
-    } else if ( amountOfVariantsVal.match(regExpObj.regExpSpaces) !== null ) {
-        currentErrorBlock.text(errors.usingSpaces);
-        amountOfVariantsField.after(currentErrorBlock);
-        hideErrorBlock(currentForm, currentErrorBlock);
-    } else if ( amountOfVariantsVal.match(regExpObj.regExpNum) == null ) {
-        currentErrorBlock.text(errors.notANumber);
-        amountOfVariantsField.after(currentErrorBlock);
-        hideErrorBlock(currentForm, currentErrorBlock);
-    } else {
-        if ( amountOfVariantsVal > 100 ) {
-            currentErrorBlock.text(errors.tooBigAmount);
-            amountOfVariantsField.after(currentErrorBlock);
-            hideErrorBlock(currentForm, currentErrorBlock);
-        } else {
-            $(currentForm).after(currentErrorBlock);
+$(document).ready(function() {
+    $('.std-form-label').first().attr('for', `variant-descr-${textAreasCounter}`);
+    $('.textarea').first().attr('id', `variant-descr-${textAreasCounter}`);
+});
 
-            const variantsWrapperForm = $('#app-form-step-2');
 
-            stepTwoWrapper.prepend(`<p class="p">The amount of variants is: ${amountOfVariantsVal}</p>`);
+const btnLaunchRandom = $('.btn-launch-random');
 
-            for (let i = 1; i <= amountOfVariantsVal; i++) { // think about prefix / postfix notation of iterator
-                variantsWrapperForm.append(`
-                <div class="form-item">
-                    <label for="variant-${i}" class="std-form-label">Please, input the description of variant</label>
-                    <textarea id="variant-${i}" class="textarea"></textarea>
-                </div>`);
-            }
 
-            variantsWrapperForm.append('<button type="button" class="btn btn-primary btn-next btn-step-2" disabled>Launch random choice</button>');
-            variantsWrapperForm.append('<div class="error-block"></div>');
-            eNode.trigger('readyVariantsList');
-        }
+// adding variants
+
+$('.btn-add-variant').on('click', function() {
+    $('#app-form-step-1 .form-item:last').after(`
+        <div class="form-item">
+            <label for="variant-descr-${++textAreasCounter}" class="std-form-label">Please, input the description</label>
+            <textarea id="variant-descr-${textAreasCounter}" class="textarea"></textarea>
+            <a href="#" class="link link-del-variant">Delete variant</a>
+            <div class="error-block"></div>
+        </div>
+    `);
+    //$('#app-form-step-1 .form-item:last textarea').attr('autofocus'); // add 'autofocus' for new textareas
+    
+    if (textAreasCounter >= 2) {
+        btnLaunchRandom.attr('disabled', false);
     }
 });
+
+
+// deleting variants
+
+$('#app-form-step-1').on('click', '.link-del-variant', function(e) {
+    e.preventDefault();
+
+    if ( $('#app-form-step-1 .form-item').length !== 1 ) {
+        --textAreasCounter; // check !
+        $(this).parent().remove();
+    }
+
+    if (textAreasCounter < 2) {
+        btnLaunchRandom.attr('disabled', true);
+    }
+});
+
+
+// validation & launch random choice
+
+let errAmount = 0;
+
+btnLaunchRandom.on('click', function() {
+    $('#app-form-step-1 .textarea').each(function() {
+        if ( $(this).val() == '' ) {
+            $(this).addClass('invalid');
+            ++errAmount;
+        }
+    });
+
+    if ( errAmount > 0 ) {
+        eNode.trigger('validationError', ['emptyField']);
+    }
+});
+
+eNode.on('validationError', function(e, errType = '') {
+    if ( errType !== '' ) {
+        const err = errors[errType];
+        $('.invalid').each(function() {
+            $(this).parent().find('.error-block').text(err).fadeIn();
+        });
+
+        hideErrorBlock();
+    }
+
+    errAmount = 0;
+});
+
+
+//
 
 eNode.on('readyVariantsList', function() {
     stepOneWrapper.hide();
