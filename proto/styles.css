@@ -63,10 +63,19 @@ button:disabled:hover {
     height: 150px;
 }
 
-.error-block {
+.selected-variant {
+    background: yellow;
+}
+
+.error-block, 
+.common-errors-block {
     display: none;
     padding-top: 1rem;
     color: #f34656;
+}
+
+.common-errors-block {
+    padding-bottom: 1rem;
 }
 
 .no-display {

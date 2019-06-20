@@ -18,14 +18,19 @@ const regExpObj = {
 function hideBlock(block) {
     setTimeout(function() {
         block.hide();
+        if ( block.attr('class').indexOf('err') !== -1 ) {
+            block.text('');
+        }
     }, 4000);
 }
 
 function hideErrorBlock() {
     setTimeout(function() {
         $('.invalid').removeClass('invalid');
-        $('.app-logic-step').find('.error-block').fadeOut().text('');
+        $('.app-logic-step .error-block').fadeOut().text('');
     }, 3000);
+    errAmount = 0;
+    //console.log(errAmount); // test > ok
 }
 
 
@@ -46,7 +51,7 @@ stepTwoWrapper.hide();
 
 let textAreasCounter = 1;
 
-const stepOneErrBlock = $('.step-1 .error-block');
+const stepOneCommonErrBlock = $('.step-1 .common-errors-block');
 
 $(document).ready(function() {
     $('.std-form-label').first().attr('for', `variant-descr-${textAreasCounter}`);
@@ -69,7 +74,7 @@ $('.btn-add-variant').on('click', function() {
         </div>
     `);
     //$('#app-form-step-1 .form-item:last textarea').attr('autofocus'); // add 'autofocus' for new textareas
-    
+
     if (textAreasCounter >= 2) {
         btnLaunchRandom.attr('disabled', false);
     }
@@ -97,15 +102,38 @@ $('#app-form-step-1').on('click', '.link-del-variant', function(e) {
 let errAmount = 0;
 
 btnLaunchRandom.on('click', function() {
+    const variantsAmount = $('#app-form-step-1 .textarea').length;
+
+    // replace to 'length > 100'
+    if ( variantsAmount > 10 ) {
+        stepOneCommonErrBlock.text(errors.tooBigAmount).fadeIn();
+        hideBlock(stepOneCommonErrBlock);
+        return false;
+    }
+
     $('#app-form-step-1 .textarea').each(function() {
         if ( $(this).val() == '' ) {
             $(this).addClass('invalid');
             ++errAmount;
+            //console.log(errAmount); // test > ok
         }
     });
 
     if ( errAmount > 0 ) {
         eNode.trigger('validationError', ['emptyField']);
+    } else {
+        // generates a pseudo random number of variant
+        let randomNumOfVar = Math.random() * variantsAmount;
+        randomNumOfVar = Math.floor(randomNumOfVar);
+        //console.log(randomNumOfVar); // test
+        const selectedVarParent = $('#app-form-step-1 .textarea').eq(randomNumOfVar).parent();
+
+        selectedVarParent.addClass('selected-variant');
+        btnLaunchRandom.attr('disabled', true);
+        setTimeout(function() {
+            selectedVarParent.removeClass('selected-variant');
+            btnLaunchRandom.attr('disabled', false);
+        }, 4000);
     }
 });
 
@@ -118,12 +146,10 @@ eNode.on('validationError', function(e, errType = '') {
 
         hideErrorBlock();
     }
-
-    errAmount = 0;
 });
 
 
-//
+// tmp
 
 eNode.on('readyVariantsList', function() {
     stepOneWrapper.hide();
