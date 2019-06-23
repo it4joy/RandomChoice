@@ -12,6 +12,14 @@ body {
     padding: 1.4rem;
 }
 
+.scenario-2 {
+    display: none;
+}
+
+.note-scenario-2 {
+    display: none;
+}
+
 .btn {
     display: inline-block;
     padding: 1rem;

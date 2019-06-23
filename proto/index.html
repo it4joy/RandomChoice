@@ -13,24 +13,31 @@
                 <p>Use this tool if u don't know what u should choose</p>
             </div>
             <div class="std-block app-logic-step step-1">
-                <p class="step-note">Defining of variants</p>
+                <p class="step-note note-scenario-1">Please, define all of variants below or <button type="button" class="btn btn-primary btn-specify-amount">Specify amount</button></p>
+                <p class="step-note note-scenario-2"><button type="button" class="btn btn-primary btn-back-to-init">Back</button></p>
                 <form id="app-form-step-1" class="app-form">
-                    <div class="form-item">
-                        <label for="" class="std-form-label">Please, input the description</label>
-                        <textarea id="" class="textarea" autofocus></textarea>
-                        <a href="#" class="link link-del-variant">Delete variant</a>
+                    <div class="form-item scenario-2">
+                        <label for="amount-of-variants" class="std-form-label">Please, input the amount of variants (less or equal to 100)</label>
+                        <input type="text" id="amount-of-variants" class="std-form-field amount-of-variants" autofocus>
+                    </div>
+                    <div class="form-item scenario-1-item">
+                        <label for="variant-descr-1" class="std-form-label">Please, input the description</label>
+                        <textarea id="variant-descr-1" class="textarea" autofocus></textarea>
                         <div class="error-block"></div>
                     </div>
                 </form>
                 <div class="common-errors-block"></div>
-                <button type="button" class="btn btn-primary btn-add-variant">Add variant</button>
-                <button type="button" class="btn btn-primary btn-launch-random" disabled>Launch Random Choice</button>
+                <div class="step-bottom-btns-wrapper">
+                    <button type="button" class="btn btn-primary btn-add-variant">Add variant</button>
+                    <button type="button" class="btn btn-primary btn-launch-random" disabled>Launch Random Choice</button>
+                    <button type="button" class="btn btn-primary btn-add-variants-auto no-display">Create</button>
+                </div>
             </div>
             <div class="std-block app-logic-step step-2">
                 
             </div>
         </div>
 
-        <script src="main.js" type="text/javascript" async></script>
+        <script src="main.js" type="text/javascript"></script>
     </body>
 </html>
