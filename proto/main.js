@@ -9,6 +9,7 @@ const errors = {
 const customEvents = {
     isScenarioOne: true,
     sc2: 'sc2Activated',
+    sc1: 'sc1Activated',
 }
 
 // regExps
@@ -33,10 +34,11 @@ function hideBlock(block) {
 function hideErrorBlock() {
     setTimeout(function() {
         $('.invalid').removeClass('invalid');
-        $('.form-wrapper .error-block').fadeOut().text('');
+        errBlock.fadeOut().text('');
     }, 3000);
-    errAmount = 0;
-    console.log(`Err amount is: ${errAmount}`); // test
+    // tmp
+    //errAmount = 0;
+    //console.log(`Err amount is: ${errAmount}`);
 }
 
 
@@ -52,16 +54,27 @@ let textAreasCounter = 2; // init amount of textareas (in both scenarios)
 const scOneWrapper = $('.scenario-1-wrapper');
 const scTwoWrapper = $('.scenario-2-wrapper');
 
+const scOneNote = $('.note-scenario-1');
+const scTwoNote = $('.note-scenario-2');
+
+const scTwoControl = $('.scenario-2-control');
+
+const scOneItem = $('.scenario-1-item');
+const scTwoItem = $('.scenario-2-item');
+
+const errBlock = $('.error-block');
 const commonErrBlock = $('.form-wrapper .common-errors-block');
 
 const btnLaunchRandom = $('.btn-launch-random');
 const btnSpecifyAmount = $('.btn-specify-amount');
+const btnAdd = $('.btn-add-variant');
 const btnAddAuto = $('.btn-add-variants-auto');
+const btnBackToInit = $('.btn-back-to-init');
 
 
 // adds variants (scenario-1)
 
-$('.btn-add-variant').on('click', function() {
+btnAdd.on('click', function() {
     $('#app-form .scenario-1-item:last').after(`
         <div class="form-item scenario-1-item">
             <label for="variant-descr-${++textAreasCounter}" class="std-form-label">Please, input the description</label>
@@ -81,39 +94,39 @@ btnSpecifyAmount.on('click', function() {
 });
 
 
+btnBackToInit.on('click', function() {
+    eNode.trigger(customEvents.sc1);
+    console.log(`E: ${customEvents.sc1}`); // test
+});
+
+
+eNode.on(customEvents.sc1, function() {
+    customEvents.isScenarioOne = true;
+
+    scOneNote.fadeIn();
+    scTwoNote.fadeOut();
+
+    scOneWrapper.fadeIn();
+    scTwoWrapper.fadeOut();
+
+    btnAddAuto.fadeOut();
+    btnAdd.fadeIn();
+});
+
+
 eNode.on(customEvents.sc2, function() {
     customEvents.isScenarioOne = false;
+
+    scOneNote.fadeOut();
+    scTwoNote.fadeIn();
 
     scOneWrapper.fadeOut();
     scTwoWrapper.fadeIn();
     
     btnAddAuto.fadeIn();
-
-    // if variants are already exist (scenario 2, adding new)
-    if ( $('#app-form .scenario-2-item').length > 0 ) {
-        textAreasCounter = $('#app-form .scenario-2-item').length;
-        console.log(textAreasCounter); // test
-        $('.scenario-2 label').text('You can add variants');
-        $('.scenario-2-item').fadeIn();
-        $('.btn-add-variants-auto').fadeIn().attr('disabled', false);
-        btnLaunchRandom.fadeIn(); // test
-        eNode.trigger('scenario2_Adding'); // test
-    } else {
-        textAreasCounter = 0;
-        btnLaunchRandom.fadeOut(); // ?
-        $('.btn-add-variants-auto').fadeIn().attr('disabled', true);
-    }
-
-    $('.note-scenario-1').fadeOut();
-    $('.note-scenario-2').fadeIn();
-    $('.scenario-1-item').fadeOut();
-    $('.scenario-2').fadeIn();
-    $('.btn-add-variant').fadeOut(); // test
+    btnAdd.fadeOut();
 });
 
-$('.btn-back-to-init').on('click', function() {
-    eNode.trigger('scenarioTwoDisactivated');
-});
 
 eNode.on('scenarioTwoDisactivated', function() {
     // if variants are already exist (scenario 1, adding new)
@@ -136,15 +149,17 @@ eNode.on('scenarioTwoDisactivated', function() {
 });
 
 
-// checking field with amount's value
+// scenario-2: checking field with amount's value
 
 $('#amount-of-variants').on('input', function() {
     // replace '10' to '100' after test
-    if ( $(this).val() < 2 || $(this).val() > 10 ) {
-        $('.btn-add-variants-auto').attr('disabled', true);
-        // N: output of errors?
+    if ( $(this).val() > 10 ) {
+        btnAddAuto.attr('disabled', true);
+        // error in modal?..
+        commonErrBlock.text(errors.tooBigAmount).fadeIn();
+        hideBlock(commonErrBlock);
     } else {
-        $('.btn-add-variants-auto').attr('disabled', false);
+        btnAddAuto.attr('disabled', false);
     }
 });
 
@@ -185,31 +200,25 @@ eNode.on('scenario2_Adding', function() {
 btnAddAuto.on('click', function() {
     const amountOfVariants = $('#amount-of-variants').val();
     console.log(amountOfVariants); // test
+    
+    // think about prefix / postfix notation of iterator
+    // defines the value of 'i' according 2 init blocks
+    for (let i = 3; i <= amountOfVariants; i++) {
+        $('#app-form .scenario-2-item:last').after(`
+            <div class="form-item scenario-2-item">
+                <label for="sc2-variant-descr-${i}" class="std-form-label">Please, input the description</label>
+                <textarea id="sc2-variant-descr-${i}" class="textarea"></textarea>
+                <a href="#" class="link link-del-variant">Delete variant</a>
+                <div class="error-block"></div>
+            </div>
+        `);
 
-    // N: remove this validation because it already exists above as a validation after click on the button
-    if ( amountOfVariants > 10 ) {
-        commonErrBlock.text(errors.tooBigAmount).fadeIn();
-        hideBlock(commonErrBlock);
-    } else {
-        // think about prefix / postfix notation of iterator
-        // defines the value of 'i' according 2 init blocks
-        for (let i = 3; i <= amountOfVariants; i++) {
-            $('#app-form .scenario-2-item:last').after(`
-                <div class="form-item scenario-2-item">
-                    <label for="sc2-variant-descr-${i}" class="std-form-label">Please, input the description</label>
-                    <textarea id="sc2-variant-descr-${i}" class="textarea"></textarea>
-                    <a href="#" class="link link-del-variant">Delete variant</a>
-                    <div class="error-block"></div>
-                </div>
-            `);
-
-            // test
-            ++textAreasCounter;
-            console.log(textAreasCounter);
-        }
-
-        $(this).fadeOut(); // test
+        // test
+        ++textAreasCounter;
+        console.log(textAreasCounter);
     }
+
+    $(this).fadeOut(); // test
 });
 
 
@@ -229,41 +238,38 @@ $('#app-form').on('click', '.link-del-variant', function(e) {
 
 // validation & launch random choice
 
-let errAmount, variantsAmount = 0;
+let variantsAmount = 0;
+let currentTextarea = '';
 
 btnLaunchRandom.on('click', function() {
-    // this handler is independent of scenarios (check !)
+    // this handler is independent of scenarios
 
     if ( customEvents.isScenarioOne === true ) {
-        variantsAmount = $('.scenario-1-item').length;
+        variantsAmount = scOneItem.length;
+        currentTextarea = scOneWrapper.find('.textarea');
+        console.log(currentTextarea); // test
     } else {
-        variantsAmount = $('.scenario-2-item').length;
+        variantsAmount = scTwoItem.length;
+        currentTextarea = scTwoWrapper.find('.textarea');
+        console.log(currentTextarea); // test
     }
 
-    // replace to 'length > 100'
-    if ( variantsAmount > 10 ) {
-        commonErrBlock.text(errors.tooBigAmount).fadeIn();
-        hideBlock(commonErrBlock);
-        return false;
-    }
-
-    $('#app-form .textarea').each(function() {
+    currentTextarea.each(function() {
         if ( $(this).val() == '' ) {
             $(this).addClass('invalid');
-            ++errAmount;
-            //console.log(errAmount); // test > ok
         }
     });
 
-    if ( errAmount > 0 ) {
+    if ( $('.textarea').hasClass('invalid') ) {
         eNode.trigger('validationError', ['emptyField']);
+        //return false;
     } else {
         // generates a pseudo random number of variant
         let randomNumOfVar = Math.random() * variantsAmount;
         randomNumOfVar = Math.floor(randomNumOfVar);
-        //console.log(randomNumOfVar); // test
-        const selectedVarParent = $('#app-form .textarea').eq(randomNumOfVar).parent();
+        console.log(`Random amount of vars is: ${randomNumOfVar}`); // test
 
+        const selectedVarParent = currentTextarea.eq(randomNumOfVar).parent();
         selectedVarParent.addClass('selected-variant');
         btnLaunchRandom.attr('disabled', true);
         setTimeout(function() {
@@ -277,7 +283,7 @@ eNode.on('validationError', function(e, errType = '') {
     if ( errType !== '' ) {
         const err = errors[errType];
         $('.invalid').each(function() {
-            $(this).parent().find('.error-block').text(err).fadeIn();
+            $(this).parent().find(errBlock).text(err).fadeIn(); // test
         });
 
         hideErrorBlock();
