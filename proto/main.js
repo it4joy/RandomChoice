@@ -6,6 +6,11 @@ const errors = {
     tooBigAmount: 'The amount should be less or equal to 100',
 }
 
+const customEvents = {
+    isScenarioOne: true,
+    sc2: 'sc2Activated',
+}
+
 // regExps
 
 const regExpObj = {
@@ -28,10 +33,10 @@ function hideBlock(block) {
 function hideErrorBlock() {
     setTimeout(function() {
         $('.invalid').removeClass('invalid');
-        $('.app-logic-step .error-block').fadeOut().text('');
+        $('.form-wrapper .error-block').fadeOut().text('');
     }, 3000);
     errAmount = 0;
-    //console.log(errAmount); // test > ok
+    console.log(`Err amount is: ${errAmount}`); // test
 }
 
 
@@ -40,27 +45,24 @@ function hideErrorBlock() {
 const eNode = $({});
 
 
-// gets nodes of steps & hides smth initially
+// work with form
 
-const stepOneWrapper = $('.step-1');
+let textAreasCounter = 2; // init amount of textareas (in both scenarios)
 
-const stepTwoWrapper = $('.step-2');
-stepTwoWrapper.hide();
+const scOneWrapper = $('.scenario-1-wrapper');
+const scTwoWrapper = $('.scenario-2-wrapper');
 
-
-// step-1
-
-let textAreasCounter = 1;
-
-const stepOneCommonErrBlock = $('.step-1 .common-errors-block');
+const commonErrBlock = $('.form-wrapper .common-errors-block');
 
 const btnLaunchRandom = $('.btn-launch-random');
+const btnSpecifyAmount = $('.btn-specify-amount');
+const btnAddAuto = $('.btn-add-variants-auto');
 
 
-// adding variants
+// adds variants (scenario-1)
 
 $('.btn-add-variant').on('click', function() {
-    $('#app-form-step-1 .form-item:last').after(`
+    $('#app-form .scenario-1-item:last').after(`
         <div class="form-item scenario-1-item">
             <label for="variant-descr-${++textAreasCounter}" class="std-form-label">Please, input the description</label>
             <textarea id="variant-descr-${textAreasCounter}" class="textarea"></textarea>
@@ -68,35 +70,45 @@ $('.btn-add-variant').on('click', function() {
             <div class="error-block"></div>
         </div>
     `);
-    //$('#app-form-step-1 .form-item:last textarea').attr('autofocus'); // add 'autofocus' for new textareas
-
-    if (textAreasCounter >= 2) {
-        btnLaunchRandom.attr('disabled', false);
-    }
 });
 
 
-$('.btn-specify-amount').on('click', function() {
-    eNode.trigger('scenarioTwoActivated');
+// scenario-2
+
+btnSpecifyAmount.on('click', function() {
+    eNode.trigger(customEvents.sc2);
+    console.log(`E: ${customEvents.sc2}`); // test
 });
 
-eNode.on('scenarioTwoActivated', function() {
-    if ( $('#app-form-step-1 .scenario-2-item').length > 0 ) {
-        textAreasCounter = $('#app-form-step-1 .scenario-2-item').length;
+
+eNode.on(customEvents.sc2, function() {
+    customEvents.isScenarioOne = false;
+
+    scOneWrapper.fadeOut();
+    scTwoWrapper.fadeIn();
+    
+    btnAddAuto.fadeIn();
+
+    // if variants are already exist (scenario 2, adding new)
+    if ( $('#app-form .scenario-2-item').length > 0 ) {
+        textAreasCounter = $('#app-form .scenario-2-item').length;
+        console.log(textAreasCounter); // test
+        $('.scenario-2 label').text('You can add variants');
         $('.scenario-2-item').fadeIn();
-        $('.btn-add-variants-auto').fadeOut();
+        $('.btn-add-variants-auto').fadeIn().attr('disabled', false);
         btnLaunchRandom.fadeIn(); // test
+        eNode.trigger('scenario2_Adding'); // test
     } else {
         textAreasCounter = 0;
+        btnLaunchRandom.fadeOut(); // ?
+        $('.btn-add-variants-auto').fadeIn().attr('disabled', true);
     }
 
     $('.note-scenario-1').fadeOut();
     $('.note-scenario-2').fadeIn();
     $('.scenario-1-item').fadeOut();
     $('.scenario-2').fadeIn();
-    $('.btn-add-variant').fadeOut();
-    btnLaunchRandom.fadeOut();
-    $('.btn-add-variants-auto').fadeIn().attr('disabled', true);
+    $('.btn-add-variant').fadeOut(); // test
 });
 
 $('.btn-back-to-init').on('click', function() {
@@ -104,6 +116,11 @@ $('.btn-back-to-init').on('click', function() {
 });
 
 eNode.on('scenarioTwoDisactivated', function() {
+    // if variants are already exist (scenario 1, adding new)
+    if ( $('.scenario-1-item').length > 0 ) {
+        textAreasCounter = $('.scenario-1-item').length; // test
+    }
+
     $('.note-scenario-1').fadeIn();
     $('.note-scenario-2').fadeOut();
     $('.scenario-1-item').fadeIn();
@@ -111,40 +128,76 @@ eNode.on('scenarioTwoDisactivated', function() {
     $('.scenario-2').fadeOut();
     $('.btn-add-variants-auto').fadeOut().attr('disabled', false);
     $('.btn-add-variant').fadeIn();
-    if ( $('#app-form-step-1 .scenario-1-item').length >= 2 ) {
+    if ( $('#app-form .scenario-1-item').length >= 2 ) {
         btnLaunchRandom.fadeIn().attr('disabled', false);
     } else {
         btnLaunchRandom.fadeIn().attr('disabled', true);
     }
 });
 
-$('#amount-of-variants').on('input', function() {
-    $('.btn-add-variants-auto').attr('disabled', false);
-});
 
-$('#amount-of-variants').on('blur', function() {
-    if ( $(this).val().length === 0 ) {
+// checking field with amount's value
+
+$('#amount-of-variants').on('input', function() {
+    // replace '10' to '100' after test
+    if ( $(this).val() < 2 || $(this).val() > 10 ) {
         $('.btn-add-variants-auto').attr('disabled', true);
+        // N: output of errors?
+    } else {
+        $('.btn-add-variants-auto').attr('disabled', false);
     }
 });
 
-$('.btn-add-variants-auto').on('click', function() {
-    const amountOfVariants = $('#amount-of-variants').val();
 
-    if ( amountOfVariants < 2 ) {
-        stepOneCommonErrBlock.text(errors.tooSmallAmount).fadeIn();
-        hideBlock(stepOneCommonErrBlock);
-    // replace to 'length > 100'
-    } else if ( amountOfVariants > 10 ) {
-        stepOneCommonErrBlock.text(errors.tooBigAmount).fadeIn();
-        hideBlock(stepOneCommonErrBlock);
+eNode.on('scenario2_Adding', function() {
+    $('.btn-add-variants-auto').on('click', function() {
+        const amountOfVariants = $('#amount-of-variants').val();
+        const currentScenario2ItemsAmount = $('.scenario-2-item').length;
+
+        if ( amountOfVariants + currentScenario2ItemsAmount > 10 ) {
+            commonErrBlock.text(errors.tooBigAmount).fadeIn();
+            hideBlock(commonErrBlock);
+        } else {
+            for (let i = currentScenario2ItemsAmount; i <= amountOfVariants + currentScenario2ItemsAmount; i++) {
+                $('#app-form .scenario-2-item:last').after(`
+                    <div class="form-item scenario-2-item">
+                        <label for="variant-descr-${i}" class="std-form-label">Please, input the description</label>
+                        <textarea id="variant-descr-${i}" class="textarea"></textarea>
+                        <a href="#" class="link link-del-variant">Delete variant</a>
+                        <div class="error-block"></div>
+                    </div>
+                `);
+
+                // test
+                ++textAreasCounter;
+                console.log(textAreasCounter);
+            }
+
+            $(this).fadeOut();
+            btnLaunchRandom.fadeIn().attr('disabled', false);
+        }
+    });
+});
+
+
+// scenario-2
+
+btnAddAuto.on('click', function() {
+    const amountOfVariants = $('#amount-of-variants').val();
+    console.log(amountOfVariants); // test
+
+    // N: remove this validation because it already exists above as a validation after click on the button
+    if ( amountOfVariants > 10 ) {
+        commonErrBlock.text(errors.tooBigAmount).fadeIn();
+        hideBlock(commonErrBlock);
     } else {
         // think about prefix / postfix notation of iterator
-        for (let i = 1; i <= amountOfVariants; i++) {
-            $('#app-form-step-1 .form-item:last').after(`
+        // defines the value of 'i' according 2 init blocks
+        for (let i = 3; i <= amountOfVariants; i++) {
+            $('#app-form .scenario-2-item:last').after(`
                 <div class="form-item scenario-2-item">
-                    <label for="variant-descr-${i}" class="std-form-label">Please, input the description</label>
-                    <textarea id="variant-descr-${i}" class="textarea"></textarea>
+                    <label for="sc2-variant-descr-${i}" class="std-form-label">Please, input the description</label>
+                    <textarea id="sc2-variant-descr-${i}" class="textarea"></textarea>
                     <a href="#" class="link link-del-variant">Delete variant</a>
                     <div class="error-block"></div>
                 </div>
@@ -155,30 +208,19 @@ $('.btn-add-variants-auto').on('click', function() {
             console.log(textAreasCounter);
         }
 
-        $('.scenario-2-item:first').find('.link-del-variant').hide();
-        $(this).fadeOut();
-        btnLaunchRandom.fadeIn().attr('disabled', false);
+        $(this).fadeOut(); // test
     }
 });
 
 
-// deleting variants
+// deletes variants
 
-$('#app-form-step-1').on('click', '.link-del-variant', function(e) {
+$('#app-form').on('click', '.link-del-variant', function(e) {
     e.preventDefault();
 
-    if ( $('#app-form-step-1 .scenario-1-item').length !== 1 || $('#app-form-step-1 .scenario-2-item').length !== 1 ) {
-        --textAreasCounter; // check !
+    if ( $('#app-form .scenario-1-item').length !== 2 || $('#app-form .scenario-2-item').length !== 2 ) {
+        --textAreasCounter;
         $(this).parent().remove();
-    }
-
-    if (textAreasCounter < 2) {
-        btnLaunchRandom.attr('disabled', true);
-    }
-
-    if ( $('#app-form-step-1 .scenario-2-item').length === 1 ) {
-        $('#app-form-step-1 .scenario-2-item').remove();
-        $('.btn-add-variants-auto').fadeIn();
     }
 
     console.log(textAreasCounter); // test
@@ -187,19 +229,25 @@ $('#app-form-step-1').on('click', '.link-del-variant', function(e) {
 
 // validation & launch random choice
 
-let errAmount = 0;
+let errAmount, variantsAmount = 0;
 
 btnLaunchRandom.on('click', function() {
-    const variantsAmount = $('#app-form-step-1 .textarea').length;
+    // this handler is independent of scenarios (check !)
+
+    if ( customEvents.isScenarioOne === true ) {
+        variantsAmount = $('.scenario-1-item').length;
+    } else {
+        variantsAmount = $('.scenario-2-item').length;
+    }
 
     // replace to 'length > 100'
     if ( variantsAmount > 10 ) {
-        stepOneCommonErrBlock.text(errors.tooBigAmount).fadeIn();
-        hideBlock(stepOneCommonErrBlock);
+        commonErrBlock.text(errors.tooBigAmount).fadeIn();
+        hideBlock(commonErrBlock);
         return false;
     }
 
-    $('#app-form-step-1 .textarea').each(function() {
+    $('#app-form .textarea').each(function() {
         if ( $(this).val() == '' ) {
             $(this).addClass('invalid');
             ++errAmount;
@@ -214,7 +262,7 @@ btnLaunchRandom.on('click', function() {
         let randomNumOfVar = Math.random() * variantsAmount;
         randomNumOfVar = Math.floor(randomNumOfVar);
         //console.log(randomNumOfVar); // test
-        const selectedVarParent = $('#app-form-step-1 .textarea').eq(randomNumOfVar).parent();
+        const selectedVarParent = $('#app-form .textarea').eq(randomNumOfVar).parent();
 
         selectedVarParent.addClass('selected-variant');
         btnLaunchRandom.attr('disabled', true);
@@ -234,12 +282,4 @@ eNode.on('validationError', function(e, errType = '') {
 
         hideErrorBlock();
     }
-});
-
-
-// tmp
-
-eNode.on('readyVariantsList', function() {
-    stepOneWrapper.hide();
-    stepTwoWrapper.show();
 });

@@ -12,29 +12,51 @@
                 <h3>RandomChoice</h3>
                 <p>Use this tool if u don't know what u should choose</p>
             </div>
-            <div class="std-block app-logic-step step-1">
-                <p class="step-note note-scenario-1">Please, define all of variants below or <button type="button" class="btn btn-primary btn-specify-amount">Specify amount</button></p>
-                <p class="step-note note-scenario-2"><button type="button" class="btn btn-primary btn-back-to-init">Back</button></p>
-                <form id="app-form-step-1" class="app-form">
-                    <div class="form-item scenario-2">
-                        <label for="amount-of-variants" class="std-form-label">Please, input the amount of variants (less or equal to 100)</label>
-                        <input type="text" id="amount-of-variants" class="std-form-field amount-of-variants" autofocus>
+            <div class="std-block form-wrapper">
+                <p class="step-note note-scenario-1">Please, define all of variants below or 
+                    <button type="button" class="btn btn-primary btn-specify-amount">Specify amount</button>
+                </p>
+                <p class="step-note note-scenario-2">
+                    <button type="button" class="btn btn-primary btn-back-to-init">Back</button>
+                </p>
+                <form id="app-form" class="app-form">
+                    <div class="scenario-1-wrapper">
+                        <!-- Initial two variants of scenario-1 -->
+                        <div class="form-item scenario-1-item">
+                            <label for="variant-descr-1" class="std-form-label">Please, input the description</label>
+                            <textarea id="variant-descr-1" class="textarea" autofocus></textarea>
+                            <div class="error-block"></div>
+                        </div>
+                        <div class="form-item scenario-1-item">
+                            <label for="variant-descr-2" class="std-form-label">Please, input the description</label>
+                            <textarea id="variant-descr-2" class="textarea"></textarea>
+                            <div class="error-block"></div>
+                        </div>
                     </div>
-                    <div class="form-item scenario-1-item">
-                        <label for="variant-descr-1" class="std-form-label">Please, input the description</label>
-                        <textarea id="variant-descr-1" class="textarea" autofocus></textarea>
-                        <div class="error-block"></div>
+                    <div class="scenario-2-wrapper">
+                        <!-- Initial two variants of scenario-2 & control -->
+                        <div class="form-item scenario-2-control">
+                            <label for="amount-of-variants" class="std-form-label">Please, input the amount of variants (less or equal to 100)</label>
+                            <input type="text" id="amount-of-variants" class="std-form-field amount-of-variants" autofocus>
+                        </div>
+                        <div class="form-item scenario-2-item">
+                            <label for="sc2-variant-descr-1" class="std-form-label">Please, input the description</label>
+                            <textarea id="sc2-variant-descr-1" class="textarea"></textarea>
+                            <div class="error-block"></div>
+                        </div>
+                        <div class="form-item scenario-2-item">
+                            <label for="sc2-variant-descr-2" class="std-form-label">Please, input the description</label>
+                            <textarea id="sc2-variant-descr-2" class="textarea"></textarea>
+                            <div class="error-block"></div>
+                        </div>
                     </div>
                 </form>
                 <div class="common-errors-block"></div>
                 <div class="step-bottom-btns-wrapper">
                     <button type="button" class="btn btn-primary btn-add-variant">Add variant</button>
-                    <button type="button" class="btn btn-primary btn-launch-random" disabled>Launch Random Choice</button>
                     <button type="button" class="btn btn-primary btn-add-variants-auto no-display">Create</button>
+                    <button type="button" class="btn btn-primary btn-launch-random">Launch Random Choice</button>
                 </div>
-            </div>
-            <div class="std-block app-logic-step step-2">
-                
             </div>
         </div>
 

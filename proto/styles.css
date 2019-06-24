@@ -82,6 +82,10 @@ button:disabled:hover {
     color: #f34656;
 }
 
+.scenario-2-wrapper {
+    display: none;
+}
+
 .common-errors-block {
     padding-bottom: 1rem;
 }
