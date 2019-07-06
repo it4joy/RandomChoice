@@ -2,8 +2,8 @@ const errors = {
     emptyField: 'Please, fill the field',
     notANumber: 'Please, use only numbers',
     usingSpaces: 'Please, don\'t use spaces',
-    tooSmallAmount: 'The amount should be more or equal to 2',
-    tooBigAmount: 'The amount should be less or equal to 100',
+    tooSmallAmount: 'The amount should be more or equal to 1',
+    tooBigAmount: 'The amount should be less or equal to 98',
 }
 
 const customEvents = {
@@ -64,6 +64,8 @@ const scTwoItem = $('.scenario-2-item');
 
 const errBlock = $('.error-block');
 const commonErrBlock = $('.form-wrapper .common-errors-block');
+
+const amountOfVariantsInput = $('#amount-of-variants');
 
 const btnLaunchRandom = $('.btn-launch-random');
 const btnSpecifyAmount = $('.btn-specify-amount');
@@ -139,7 +141,7 @@ eNode.on('scenarioTwoDisactivated', function() {
     $('.scenario-1-item').fadeIn();
     $('.scenario-2-item').fadeOut();
     $('.scenario-2').fadeOut();
-    $('.btn-add-variants-auto').fadeOut().attr('disabled', false);
+    btnAddAuto.fadeOut().attr('disabled', false);
     $('.btn-add-variant').fadeIn();
     if ( $('#app-form .scenario-1-item').length >= 2 ) {
         btnLaunchRandom.fadeIn().attr('disabled', false);
@@ -151,13 +153,26 @@ eNode.on('scenarioTwoDisactivated', function() {
 
 // scenario-2: checking field with amount's value
 
-$('#amount-of-variants').on('input', function() {
+amountOfVariantsInput.on('input', function() {
     // replace '10' to '100' after test
-    if ( $(this).val() > 10 ) {
-        btnAddAuto.attr('disabled', true);
+    if ( $(this).val().match(regExpObj.regExpNum) == null ) {
+        commonErrBlock.text(errors.notANumber).fadeIn();
+        hideBlock(commonErrBlock);
+        //return false;
+    } else if ( $(this).val().match(regExpObj.regExpSpaces) !== null ) {
+        commonErrBlock.text(errors.usingSpaces).fadeIn();
+        hideBlock(commonErrBlock);
+        //return false;
+    } else if ( parseInt( $(this).val(), 10 ) + 2 > 10 ) {
         // error in modal?..
+        console.log( $(this).val() ); // test
         commonErrBlock.text(errors.tooBigAmount).fadeIn();
         hideBlock(commonErrBlock);
+        //return false;
+    } else if ( parseInt( $(this).val(), 10 ) < 1 ) {
+        commonErrBlock.text(errors.tooSmallAmount).fadeIn();
+        hideBlock(commonErrBlock);
+        //return false;
     } else {
         btnAddAuto.attr('disabled', false);
     }
@@ -165,10 +180,11 @@ $('#amount-of-variants').on('input', function() {
 
 
 eNode.on('scenario2_Adding', function() {
-    $('.btn-add-variants-auto').on('click', function() {
-        const amountOfVariants = $('#amount-of-variants').val();
-        const currentScenario2ItemsAmount = $('.scenario-2-item').length;
+    btnAddAuto.on('click', function() {
+        const amountOfVariants = amountOfVariantsInput.val();
+        const currentScenario2ItemsAmount = scTwoItem.length;
 
+        // replace '10' to '100' after test
         if ( amountOfVariants + currentScenario2ItemsAmount > 10 ) {
             commonErrBlock.text(errors.tooBigAmount).fadeIn();
             hideBlock(commonErrBlock);
@@ -215,8 +231,8 @@ btnAddAuto.on('click', function() {
 
         // test
         ++textAreasCounter;
-        console.log(textAreasCounter);
     }
+    console.log(textAreasCounter); // test
 
     $(this).fadeOut(); // test
 });
